@@ -18,27 +18,27 @@ Send faxes with the [Phaxio API](http://www.phaxio.com).
 
 ## Methods
 
-### `phaxio.getApiKey()`
+### phaxio.getApiKey()
 
 Returns the current API key
 
-### `phaxio.getApiSecret()`
+### phaxio.getApiSecret()
 
 Returns the current API secret
 
-### `phaxio.setApiKey(api_key)`
+### phaxio.setApiKey(api_key)
 
 Changes the API key to `api_key`
 
 	phaxio.setApiKey('e222........................');
 	
-### `phaxio.setApiSecret(api_secret)`
+### phaxio.setApiSecret(api_secret)
 
 Changes the API secret to `api_secret`
 
 	phaxio.setApiSecret('62e5........................');
 	
-### `phaxio.faxStatus(faxId, callback)`
+### phaxio.faxStatus(faxId, callback)
 
 Returns the status of `faxId`
 
@@ -46,7 +46,7 @@ Returns the status of `faxId`
 	  console.log(res);
 	});
 
-### `phaxio.sendFax(to [, filename, options], callback)`
+### phaxio.sendFax(to [, filename, options], callback)
 
 Sends `to` a fax containing `filename` or `options`
 
@@ -65,19 +65,19 @@ Sends `to` a fax containing `filename` or `options`
 	    batchId = res.batchId;
 	});
 
-### `phaxio.fireBatch(batchId, callback)`
+### phaxio.fireBatch(batchId, callback)
 
 Fires the batch `batchId`
 
 	phaxio.fireBatch(batchId);
 
-### `phaxio.closeBatch(batchId, callback)`
+### phaxio.closeBatch(batchId, callback)
 
 Closes the batch `batchId`
 
 	phaxio.closeBatch('123456');
 
-### `phaxio.provisionNumber(area_code [, callback_url], callback)`
+### phaxio.provisionNumber(area_code [, callback_url], callback)
 
 Provisions a number in area code `area_code`
 
@@ -85,7 +85,7 @@ Provisions a number in area code `area_code`
 	  console.log(res);
 	});
 
-### `phaxio.releaseNumber(number, callback)`
+### phaxio.releaseNumber(number, callback)
 
 Releases the number `number`
 
@@ -93,7 +93,7 @@ Releases the number `number`
 	  console.log(res);
 	});
 
-### `phaxio.numberList([params,] callback)`
+### phaxio.numberList([params,] callback)
 
 Returns user phone numbers matching optional params `area_code` or `number`
 
@@ -105,7 +105,7 @@ Returns user phone numbers matching optional params `area_code` or `number`
 	  console.log(res);
 	});
 
-### `phaxio.accountStatus(callback)`
+### phaxio.accountStatus(callback)
 
 Returns the account status
 
@@ -113,7 +113,7 @@ Returns the account status
 	  console.log(res);
 	});
 
-### `phaxio.testReceive([params,] filename, callback)`
+### phaxio.testReceive([params,] filename, callback)
 
 Simulates receiving a fax containing the PhaxCode in `filename` with optional params `from_number` and `to_number`
 
