@@ -1,12 +1,13 @@
-var https = require('https'),
+var util = require('util'),
   path = require('path'),
-  util = require('util'),
-  RawFormData = require('rawformdata');
+  mime = require('mime'),
+  fs = require('fs'),
+  request = require('request');
 
 var Phaxio = function(api_key, api_secret) {
   this.api_key = api_key || null;
   this.api_secret = api_secret || null;
-  this.host = 'api.phaxio.com';
+  this.host = 'https://api.phaxio.com';
   this.endpoint = '/v1';
 };
 
@@ -103,50 +104,51 @@ Phaxio.prototype = {
     return this.doRequest('/testReceive', params, callback);
   },
   doRequest: function(address, params, callback) {
-    var rawFormData = new RawFormData(),
+    var multipart = [],
       k,
-      l;
+      l,
+      file;
     params.api_key = this.api_key;
     params.api_secret = this.api_secret;
     if(params.to)
       for(k = 0, l = params.to.length; k < l; k++)
-        rawFormData.addField('to[' + k + ']', params.to[k]);
+        multipart.push({
+          'content-disposition': 'form-data; name="to[' + k + ']"',
+          body: params.to[k]
+        });
     delete params.to;
     if(params.filename)
       for(k = 0, l = params.filename.length; k < l; k++)
-        if(params.filename[k])
-          rawFormData.addFile('filename[' + k + ']', params.filename[k]);
+        if(params.filename[k]) {
+          file = path.join(__dirname, params.filename[k]);
+          multipart.push({
+            'content-disposition': 'form-data; name="filename[' + k + ']"; filename="' + params.filename[k] + '"',
+            'content-type': (mime.lookup(file) || 'application/octet-stream'),
+            body: fs.readFileSync(file)
+          });
+        }
     delete params.filename;
     for(k in params)
       if(params.hasOwnProperty(k))
-        rawFormData.addField(k, params[k]);
-    var options = {
-        host: this.host,
-        port: 443,
-        path: this.endpoint + address,
-        method: 'POST',
-        headers: rawFormData.getHeaders()
-      },
-      req = https.request(options, function(res) {
-        var body = [], result;
-        res.on('data', function(chunk) {
-          body.push(chunk);
+        multipart.push({
+          'content-disposition': 'form-data; name="' + k + '"',
+          body: params[k]
         });
-        res.on('end', function() {
-          result = JSON.parse(body.join(''));
-          callback && callback(result);
-        });
-      }),
-      buffer = rawFormData.getBuffer();
-    for(k = 0, l = buffer.length; k < l; k++)
-      req.write(buffer[k]);
-    req.end();
+    request({
+      method: 'POST',
+      uri: this.host + this.endpoint + address,
+      headers: { 'content-type': 'multipart/form-data;' },
+      multipart: multipart
+    }, function(err, res, body) {
+      body = JSON.parse(body);
+      callback && callback(body);
+    });
     return this;
   },
   paramsCopy: function(names, options) {
     for(var params = {}, k = 0, l = names.length; k < l; k++)
       if(options[names[k]])
-      params[names[k]] = options[names[k]];
+        params[names[k]] = options[names[k]];
     return params;
   }
 };

@@ -3,7 +3,7 @@
   "name": "phaxio",
   "description": "Send faxes with the Phaxio API",
   "keywords": ["fax", "phaxio"],
-  "version": "1.0.0",
+  "version": "0.0.2",
   "homepage": "https://github.com/chadsmith/node-phaxio",
   "repository": {
     "type": "git",
@@ -14,6 +14,7 @@
   },
   "main": "./phaxio.js",
   "dependencies": {
-  	"rawformdata": "*"
+  	"request": "*",
+  	"mime": "*",
   }
 }
