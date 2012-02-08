@@ -15,6 +15,6 @@
   "main": "./phaxio.js",
   "dependencies": {
   	"request": "*",
-  	"mime": "*",
+  	"mime": "*"
   }
 }
