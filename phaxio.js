@@ -50,9 +50,6 @@ Phaxio.prototype = {
       throw new Error("You must include a 'to' number.");
     if(!filenames.length && !params.string_data)
       throw new Error('You must include a file to send.');
-    for(var k = 0, l = filenames.length; k < l; k++)
-      if(!path.existsSync(path.join(__dirname, filenames[k])))
-        throw new Error("The file '" + filenames[k] + "' does not exist.");
     params = this.paramsCopy(['string_data', 'string_data_type', 'batch', 'batch_delay', 'callback_url'], params || {});
     params.to = to;
     params.filename = filenames;
@@ -93,21 +90,62 @@ Phaxio.prototype = {
   accountStatus: function(callback) {
     return this.doRequest('/accountStatus', {}, callback);
   },
-  testReceive: function(params, filename, callback) {
-    if(params.length) {
-      callback = filename;
-      filename = params;
+  testReceive: function(filename, params, callback) {
+    if('[object Function]' == Object.prototype.toString.call(params)) {
+      callback = params;
       params = {};
     }
     params = this.paramsCopy(['from_number', 'to_number'], params);
     params.filename = [filename];
     return this.doRequest('/testReceive', params, callback);
   },
-  doRequest: function(address, params, callback) {
+  attachPhaxCodeToPdf: function(filename, x, y, params, callback) {
+    if('[object Function]' == Object.prototype.toString.call(params)) {
+      callback = params;
+      params = {};
+    }
+    params = this.paramsCopy(['metadata', 'page_number'], params);
+    params.x = parseFloat(x) || 0.0;
+    params.y = parseFloat(y) || 0.0;
+    params.filename = [filename];
+    return this.doRequest('/attachPhaxCodeToPdf', params, callback, true);
+  },
+  createPhaxCode: function(params, callback) {
+    if('[object Function]' == Object.prototype.toString.call(params)) {
+      callback = params;
+      params = {};
+    }
+    params = this.paramsCopy(['metadata', 'redirect'], params);
+    return this.doRequest('/createPhaxCode', params, callback, params.redirect);
+  },
+  getHostedDocument: function(name, metadata, callback) {
+    if(!name)
+      throw new Error('You must provide a document name.');
+    if('[object Function]' == Object.prototype.toString.call(metadata)) {
+      callback = metadata;
+      metadata = null;
+    }
+    params = { name: name };
+    if(metadata)
+      params.metadata = metadata;
+    return this.doRequest('/getHostedDocument', params, callback, true);
+  },
+  faxFile: function(faxId, type, callback) {
+    if(!faxId)
+      throw new Error('You must include a fax id.');
+    if('[object Function]' == Object.prototype.toString.call(type)) {
+      callback = type;
+      type = 'p';
+    }
+    params = { id: faxId, type: type };
+    return this.doRequest('/faxFile', params, callback, true);
+  },
+  doRequest: function(address, params, callback, download) {
     var multipart = [],
       k,
       l,
       file;
+    download = download || false;
     params.api_key = this.api_key;
     params.api_secret = this.api_secret;
     if(params.to)
@@ -121,6 +159,8 @@ Phaxio.prototype = {
       for(k = 0, l = params.filename.length; k < l; k++)
         if(params.filename[k]) {
           file = path.join(__dirname, params.filename[k]);
+          if(!path.existsSync(file))
+            throw new Error("The file '" + file + "' does not exist.");
           multipart.push({
             'content-disposition': 'form-data; name="filename[' + k + ']"; filename="' + params.filename[k] + '"',
             'content-type': (mime.lookup(file) || 'application/octet-stream'),
@@ -138,9 +178,11 @@ Phaxio.prototype = {
       method: 'POST',
       uri: this.host + this.endpoint + address,
       headers: { 'content-type': 'multipart/form-data;' },
-      multipart: multipart
+      multipart: multipart,
+      encoding: 'binary'
     }, function(err, res, body) {
-      body = JSON.parse(body);
+      if(!download)
+        body = JSON.parse(body);
       callback && callback(body);
     });
     return this;

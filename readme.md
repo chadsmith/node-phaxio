@@ -113,7 +113,7 @@ Returns the account status
 	  console.log(res);
 	});
 
-### phaxio.testReceive([params,] filename, callback)
+### phaxio.testReceive(filename [, params], callback)
 
 Simulates receiving a fax containing the PhaxCode in `filename` with optional params `from_number` and `to_number`
 
@@ -121,14 +121,61 @@ Simulates receiving a fax containing the PhaxCode in `filename` with optional pa
 	  console.log(res);
 	});
 
-	phaxio.testReceive({ from_number: '3165555555', to_number: '9135555555' }, 'PhaxCode.pdf', function(res) {
+	phaxio.testReceive('PhaxCode.pdf', { from_number: '3165555555', to_number: '9135555555' }, function(res) {
 	  console.log(res);
+	});
+
+### phaxio.attachPhaxCodeToPdf(filename, x, y [, params], callback)
+
+Returns a PDF of `filename` with a PhaxCode at the `x`,`y` location specified with optional params `metadata` and `page_number`
+
+	phaxio.attachPhaxCodeToPdf('resume.doc', 0, 5, function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, 'resume-with-PhaxCode.pdf'), buffer, 'binary');
+	});
+
+	phaxio.attachPhaxCodeToPdf('kittens.pdf', 5, 25, { metadata: 'Fax with kittens', page_number: 5 }, function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, 'kittens-with-PhaxCode.pdf'), buffer, 'binary');
+	});
+
+### phaxio.createPhaxCode([params,] callback)
+
+Creates a new PhaxCode with optional `metadata` param and returns the URL or returns a PDF if optional `redirect` param is true
+
+	phaxio.createPhaxCode(function(res) {
+	  console.log(res);
+	});
+
+	phaxio.createPhaxCode({ metadata: 'Awesome', redirect: true }, function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, 'Awesome-PhaxCode.pdf'), buffer, 'binary');
+	});
+
+### phaxio.getHostedDocument(name [, metadata], callback)
+
+Returns the hosted document `name` with a basic PhaxCode or custom PhaxCode if `metadata` is set
+
+	phaxio.getHostedDocument('order-form', function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, 'order-form.pdf'), buffer, 'binary');
+	});
+
+	phaxio.getHostedDocument('order-form', 'Referred by Chad Smith', function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, 'order-form-with-referral-code.pdf'), buffer, 'binary');
+	});
+
+### phaxio.faxFile(faxId [, type], callback)
+
+Returns the thumbnail or PDF of fax requested, optional `type` specifies _p_df (default), _s_mall or _l_arge thumbnail
+
+	phaxio.faxFile('123456', function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, 'fax-123456.pdf'), buffer, 'binary');
+	});
+
+	phaxio.faxFile('123456', 'l', function(buffer) {
+	  fs.writeFileSync(path.join(__dirname, '123456.jpg'), buffer, 'binary');
 	});
 
 ## TODO
 
 * Receiving [fax callbacks](http://www.phaxio.com/docs/api/receive/receiveCallback)
-* Support for [createPhaxCode](http://www.phaxio.com/docs/api/receive/createPhaxCode), [attachPhaxCodeToPdf](http://www.phaxio.com/docs/api/receive/attachPhaxCodeToPdf), [getHostedDocument](http://www.phaxio.com/docs/api/receive/getHostedDocument), [faxfile](http://www.phaxio.com/docs/api/general/faxFile), [faxList](http://www.phaxio.com/docs/api/general/faxList)
 
 See the [issue tracker](http://github.com/chadsmith/node-phaxio/issues) for more.
 
