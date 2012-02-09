@@ -176,6 +176,7 @@ Returns the thumbnail or PDF of fax requested, optional `type` specifies _p_df (
 ## TODO
 
 * Receiving [fax callbacks](http://www.phaxio.com/docs/api/receive/receiveCallback)
+* Support for [faxList](http://www.phaxio.com/docs/api/general/faxList)
 
 See the [issue tracker](http://github.com/chadsmith/node-phaxio/issues) for more.
 
