@@ -159,7 +159,7 @@ Phaxio.prototype = {
       for(k = 0, l = params.filename.length; k < l; k++)
         if(params.filename[k]) {
           file = path.join(__dirname, params.filename[k]);
-          if(!path.existsSync(file))
+          if(!fs.existsSync(file))
             throw new Error("The file '" + file + "' does not exist.");
           multipart.push({
             'content-disposition': 'form-data; name="filename[' + k + ']"; filename="' + params.filename[k] + '"',
