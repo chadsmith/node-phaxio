@@ -1,12 +1,16 @@
 # node-phaxio
 
-Send faxes with the [Phaxio API](http://www.phaxio.com).
+Send faxes with [Phaxio](http://www.phaxio.com). This is based off of [chadsmith](http://twitter.com/chadsmith)'s node-phaxio. It being rewritten to use streams and asyncronyous functions. No sync io here.
 
 ## Installation
 
-`npm install phaxio`
+`npm install phaxio2`
 
 ## Usage overview
+
+Don't use this yet - below is legacy.
+===
+
 
 	var Phaxio = require('phaxio'),
 	  phaxio = new Phaxio('e222........................', '62e5........................');
