@@ -1,16 +1,16 @@
 {
   "author": "Chad Smith <chad@nospam.me> (http://twitter.com/chadsmith)",
-  "name": "phaxio",
+  "name": "phaxio2",
   "description": "Send faxes with the Phaxio API",
-  "keywords": ["fax", "phaxio"],
-  "version": "0.0.3",
-  "homepage": "https://github.com/chadsmith/node-phaxio",
+  "keywords": ["fax", "phaxio", "Streams"],
+  "version": "0.0.1",
+  "homepage": "https://github.com/reconbot/node-phaxio",
   "repository": {
     "type": "git",
-    "url": "git://github.com/chadsmith/node-phaxio.git"
+    "url": "git://github.com/reconbot/node-phaxio.git"
   },
   "engines": {
-    "node": ">= v0.4.0"
+    "node": ">= v0.6.0"
   },
   "main": "./phaxio.js",
   "dependencies": {
