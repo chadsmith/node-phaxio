@@ -1,5 +1,4 @@
-var util = require('util'),
-  path = require('path'),
+var path = require('path'),
   mime = require('mime'),
   fs = require('fs'),
   request = require('request');
@@ -11,13 +10,6 @@ var Phaxio = module.exports = function(api_key, api_secret) {
   this.endpoint = '/v1';
 };
 
-Phaxio.prototype.faxStatus = function(faxId, cb) {
-  if(!faxId) {
-    return cb( new Error('You must include a fax id.') );
-  }
-  return this.doRequest('/faxStatus', { id: faxId  }, cb);
-};
-
 Phaxio.prototype.sendFax = function(opt, cb) {
   if(!opt.to) {
     return cb( new Error("You must include a 'to' number.") );
@@ -25,33 +17,40 @@ Phaxio.prototype.sendFax = function(opt, cb) {
   if( !opt.filenames && !opt.string_data ){
     return cb(new Error("You must include filenames or string_data."));
   }
-  return this.doRequest('/send', opt, cb);
+  return this.request('/send', opt, cb);
+};
+
+Phaxio.prototype.faxStatus = function(faxId, cb) {
+  if(!faxId) {
+    return cb( new Error('You must include a fax id.') );
+  }
+  return this.request('/faxStatus', { id: faxId  }, cb);
 };
 
 Phaxio.prototype.fireBatch = function(batchId, cb) {
   if(!batchId) {
     return cb(new Error('You must provide a batchId.'));
   }
-  return this.doRequest('/fireBatch', { id: batchId }, cb);
+  return this.request('/fireBatch', { id: batchId }, cb);
 };
 
 Phaxio.prototype.closeBatch = function(batchId, cb) {
   if(!batchId) {
     return cb( new Error('You must provide a batchId.') );
   }
-  return this.doRequest('/closeBatch', { id: batchId }, cb);
+  return this.request('/closeBatch', { id: batchId }, cb);
 };
 
 Phaxio.prototype.provisionNumber =  function(opt, cb) {
   if(!opt.area_code) {
     return cb(new Error('You must provide an area code.'));
   }
-  this.doRequest('/provisionNumber', opt, cb);
+  this.request('/provisionNumber', opt, cb);
 };
 
 Phaxio.prototype.releaseNumber = function(number, cb) {
   if(!number) { return cb( new Error('You must provide a number.') ); }
-  return this.doRequest('/releaseNumber', { number: number }, cb);
+  return this.request('/releaseNumber', { number: number }, cb);
 };
 
 Phaxio.prototype.numberList = function(opt, cb) {
@@ -59,16 +58,16 @@ Phaxio.prototype.numberList = function(opt, cb) {
     cb = opt;
     opt = {};
   }
-  return this.doRequest('/numberList', opt, cb);
+  return this.request('/numberList', opt, cb);
 };
 
 Phaxio.prototype.accountStatus = function(cb) {
-    return this.doRequest('/accountStatus', {}, cb);
+    return this.request('/accountStatus', {}, cb);
 };
 
 Phaxio.prototype.testReceive = function(opt, cb) {
   if(!opt.filename){ return cb( new Error('You must provide a filename') ); }
-  return this.doRequest('/testReceive', opt, cb);
+  return this.request('/testReceive', opt, cb);
 };
   
 Phaxio.prototype.attachPhaxCodeToPdf = function(opt, cb) {
@@ -78,7 +77,7 @@ Phaxio.prototype.attachPhaxCodeToPdf = function(opt, cb) {
   if(!opt.filename){
     return cb( new Error("You must provide a filename"));
   }
-  return this.doRequest('/attachPhaxCodeToPdf', opt, cb, true);
+  return this.request('/attachPhaxCodeToPdf', opt, cb, true);
 };
 
 Phaxio.prototype.createPhaxCode = function(opt, cb) {
@@ -86,41 +85,54 @@ Phaxio.prototype.createPhaxCode = function(opt, cb) {
       cb = opt;
       opt = {};
     }
-    return this.doRequest('/createPhaxCode', opt, cb, opt.redirect);
+    return this.request('/createPhaxCode', opt, cb, opt.redirect);
   };
 
 Phaxio.prototype.getHostedDocument = function(opt, cb) {
   if(!opt.name){
     return cb( new Error('You must provide a document name.') );
   }
-  return this.doRequest('/getHostedDocument', opt, cb, true);
+  return this.request('/getHostedDocument', opt, cb, true);
 };
 
 Phaxio.prototype.faxFile = function(opt, cb) {
   if(!opt.faxId) {
     return cb( new Error('You must include a fax id.') );
   }
-  return this.doRequest('/faxFile', opt, cb, true);
+  return this.request('/faxFile', opt, cb, true);
 };
 
-Phaxio.prototype.doRequest = function(resource, params, cb, download) {
-  var multipart = [],
-    k,
-    l,
-    file;
-  download = download || false;
-  params.api_key = this.api_key;
-  params.api_secret = this.api_secret;
-  if(params.to){
-    for(k = 0, l = params.to.length; k < l; k++){
-      multipart.push({
-        'content-disposition': 'form-data; name="to[' + k + ']"',
-        body: params.to[k]
+Phaxio.prototype.request = function(resource, opt, cb) {
+  opt = opt || {};
+  opt.api_key = opt.api_key || this.api_key;
+  opt.api_secret = opt.api_secret || this.api_secret;
+
+  var multipart = [];
+
+  var filenames = opt.filenames;
+  delete opt.filenames;
+
+  var addPart = function(name, body){
+    multipart.push({
+      'content-disposition': 'form-data; name="' + name +'"',
+      body: v
+    });
+  };
+
+  for(var key in opt){
+    var name = key;
+    if(Array.isArray(opt[key])){
+      name = name + '[]';
+      opt[key].forEach(function(v){
+        addPart(name, v);
       });
+    }else{
+      addPart(name, opt[key]);
     }
   }
-  delete params.to;
-  if(params.filename){
+
+  //todo
+  if(filenames){
     for(k = 0, l = params.filename.length; k < l; k++){
       if(params.filename[k]) {
         file = path.join(__dirname, params.filename[k]);
@@ -133,15 +145,6 @@ Phaxio.prototype.doRequest = function(resource, params, cb, download) {
           body: fs.readFileSync(file)
         });
       }
-    }
-  }
-  delete params.filename;
-  for(k in params){
-    if(params.hasOwnProperty(k)){
-      multipart.push({
-        'content-disposition': 'form-data; name="' + k + '"',
-        body: params[k]
-      });
     }
   }
 
