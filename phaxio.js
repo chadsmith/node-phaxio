@@ -10,6 +10,19 @@ var Phaxio = module.exports = function(api_key, api_secret) {
   this.endpoint = '/v1';
 };
 
+/*
+  opt = {
+  // one of these is required
+    filenames = ['path','path','path'],
+    string_data = 'String of data for phaxio to parse'
+  // always required
+    to = ['xxxxxxxx', 'xxxxxxxxx'],
+  //optional
+    string_data_type: '',
+    batch .. and othe phaxio options
+  }
+*/
+
 Phaxio.prototype.sendFax = function(opt, cb) {
   if(!opt.to) {
     return cb( new Error("You must include a 'to' number.") );
@@ -115,7 +128,7 @@ Phaxio.prototype.request = function(resource, opt, cb) {
   var addPart = function(name, body){
     multipart.push({
       'content-disposition': 'form-data; name="' + name +'"',
-      body: v
+      body: body
     });
   };
 
@@ -131,36 +144,51 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     }
   }
 
-  //todo
-  if(filenames){
-    for(k = 0, l = params.filename.length; k < l; k++){
-      if(params.filename[k]) {
-        file = path.join(__dirname, params.filename[k]);
-        if(!fs.existsSync(file)){
-          return cb( new Error("The file '" + file + "' does not exist.") );
-        }
-        multipart.push({
-          'content-disposition': 'form-data; name="filename[' + k + ']"; filename="' + params.filename[k] + '"',
-          'content-type': (mime.lookup(file) || 'application/octet-stream'),
-          body: fs.readFileSync(file)
-        });
-      }
+  var addFile = function(name, filename){
+    if(!fs.existsSync(filename)){
+      return cb( new Error("The file '" + filename + "' does not exist.") );
     }
+    multipart.push({
+      'content-disposition': 'form-data; name="filename[]"; filename="' + filename + '"',
+      'content-type': (mime.lookup(filename) || 'application/octet-stream'),
+      body: fs.readFileSync(filename)
+    });
+
+  };
+
+  if(filenames){
+    filenames = Array.isArray(filenames) ? filenames : [filenames] ;
+
+    filenames.forEach(function(filename, index){
+      addFile(index, filename);
+    });
   }
 
-  request(
-    {
-      method: 'POST',
-      uri: this.host + this.endpoint + resource,
-      headers: { 'content-type': 'multipart/form-data;' },
-      multipart: multipart,
-      encoding: 'binary'
-    }, function(err, res, body) {
-      if(!download) {
+  var reqBody = {
+    method: 'POST',
+    uri: this.host + this.endpoint + resource,
+    headers: { 'content-type': 'multipart/form-data;' },
+    multipart: multipart,
+    encoding: 'binary'
+  };
+
+  console.log(multipart);
+
+  // phaxio isn't too picky about response types
+  var responceCb = function(err, res, body) {
+    if(true || res.headers['content-type'] === 'application/json'){
+      try{
         body = JSON.parse(body);
+      }catch(e){
+        //err = err || e;
       }
-      cb && cb(err, body);
     }
-  );
-  return this;
+    
+    if(typeof cb ==='function'){
+      cb(err, body, res);
+    }
+  };
+
+  return request(reqBody, responceCb);
+
 };

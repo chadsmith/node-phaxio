@@ -10,7 +10,7 @@
     "url": "git://github.com/reconbot/node-phaxio.git"
   },
   "engines": {
-    "node": ">= v0.6.0"
+    "node": ">= v0.8.1"
   },
   "main": "./phaxio.js",
   "dependencies": {
