@@ -10,19 +10,6 @@ var Phaxio = module.exports = function(api_key, api_secret) {
   this.endpoint = '/v1';
 };
 
-/*
-  opt = {
-  // one of these is required
-    filenames = ['path','path','path'],
-    string_data = 'String of data for phaxio to parse'
-  // always required
-    to = ['xxxxxxxx', 'xxxxxxxxx'],
-  //optional
-    string_data_type: '',
-    batch .. and othe phaxio options
-  }
-*/
-
 Phaxio.prototype.sendFax = function(opt, cb) {
   if(!opt.to) {
     return cb( new Error("You must include a 'to' number.") );
@@ -171,8 +158,6 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     multipart: multipart,
     encoding: 'binary'
   };
-
-  console.log(multipart);
 
   // phaxio isn't too picky about response types
   var responceCb = function(err, res, body) {
