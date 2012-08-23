@@ -1,20 +1,31 @@
 {
-  "author": "Chad Smith <chad@nospam.me> (http://twitter.com/chadsmith)",
+  "author": {
+    "name": "Chad Smith",
+    "email": "chad@nospam.me",
+    "url": "http://twitter.com/chadsmith"
+  },
+  "contributors": [
+    {
+      "name": "Francis Gulotta",
+      "email": "wizard@roborooter.com",
+      "url": "http://rbrtr.com"
+    }
+  ],
   "name": "phaxio",
   "description": "Send faxes with the Phaxio API",
   "keywords": ["fax", "phaxio"],
-  "version": "0.0.3",
+  "version": "0.0.4",
   "homepage": "https://github.com/chadsmith/node-phaxio",
   "repository": {
     "type": "git",
     "url": "git://github.com/chadsmith/node-phaxio.git"
   },
   "engines": {
-    "node": ">= v0.4.0"
+    "node": "0.8.x"
   },
   "main": "./phaxio.js",
   "dependencies": {
-  	"request": "*",
-  	"mime": "*"
+  	"request": "2.10.x",
+  	"mime": "1.2.x"
   }
 }
