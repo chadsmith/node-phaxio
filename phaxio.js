@@ -1,5 +1,4 @@
-var path = require('path'),
-  mime = require('mime'),
+var mime = require('mime'),
   fs = require('fs'),
   request = require('request');
 

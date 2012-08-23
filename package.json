@@ -21,11 +21,11 @@
     "url": "git://github.com/chadsmith/node-phaxio.git"
   },
   "engines": {
-    "node": ">= v0.8.1"
+    "node": "0.8.x"
   },
   "main": "./phaxio.js",
   "dependencies": {
-  	"request": "*",
-  	"mime": "*"
+  	"request": "2.10.x",
+  	"mime": "1.2.x"
   }
 }
