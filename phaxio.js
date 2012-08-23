@@ -103,6 +103,10 @@ Phaxio.prototype.faxFile = function(opt, cb) {
 };
 
 Phaxio.prototype.request = function(resource, opt, cb) {
+  if(typeof cb !== 'function'){
+    cb = function(){};
+  }
+
   opt = opt || {};
   opt.api_key = opt.api_key || this.api_key;
   opt.api_secret = opt.api_secret || this.api_secret;
@@ -131,26 +135,6 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     }
   }
 
-  var addFile = function(name, filename){
-    if(!fs.existsSync(filename)){
-      return cb( new Error("The file '" + filename + "' does not exist.") );
-    }
-    multipart.push({
-      'content-disposition': 'form-data; name="filename[]"; filename="' + filename + '"',
-      'content-type': (mime.lookup(filename) || 'application/octet-stream'),
-      body: fs.readFileSync(filename)
-    });
-
-  };
-
-  if(filenames){
-    filenames = Array.isArray(filenames) ? filenames : [filenames] ;
-
-    filenames.forEach(function(filename, index){
-      addFile(index, filename);
-    });
-  }
-
   var reqBody = {
     method: 'POST',
     uri: this.host + this.endpoint + resource,
@@ -159,9 +143,9 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     encoding: 'binary'
   };
 
-  // phaxio isn't too picky about response types
   var responceCb = function(err, res, body) {
-    if(true || res.headers['content-type'] === 'application/json'){
+    // phaxio isn't too picky about response types
+    if(res && (true || res.headers['content-type'] === 'application/json')){
       try{
         body = JSON.parse(body);
       }catch(e){
@@ -169,11 +153,32 @@ Phaxio.prototype.request = function(resource, opt, cb) {
       }
     }
     
-    if(typeof cb ==='function'){
-      cb(err, body, res);
-    }
+    cb(err, body, res);
   };
 
-  return request(reqBody, responceCb);
+  if(!filenames){
+    return request(reqBody, responceCb);
+  }
+
+  filenames = Array.isArray(filenames) ? filenames : [filenames] ;
+
+  var files = 0;
+  filenames.forEach(function(filename, index){
+    files ++;
+    fs.readFile(filename, function(err, data){
+      if(err){
+        return cb(err);
+      }
+      files --;
+      multipart.push({
+        'content-disposition': 'form-data; name="filename[]"; filename="' + filename + '"',
+        'content-type': (mime.lookup(filename) || 'application/octet-stream'),
+        body: data
+      });
+      if(files === 0){
+        return request(reqBody, responceCb);
+      }
+    });
+  });
 
 };
