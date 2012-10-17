@@ -95,14 +95,14 @@ Phaxio.prototype.getHostedDocument = function(opt, cb) {
 };
 
 Phaxio.prototype.faxFile = function(opt, cb) {
-  if(!opt.faxId) {
+  if(!opt.id) {
     return cb( new Error('You must include a fax id.') );
   }
   return this.request('/faxFile', opt, cb, true);
 };
 
 Phaxio.prototype.request = function(resource, opt, cb) {
-  if(typeof cb !== 'function'){
+  if(typeof cb !== 'function') {
     cb = function(){};
   }
 
