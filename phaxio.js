@@ -139,7 +139,8 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     uri: this.host + this.endpoint + resource,
     headers: { 'content-type': 'multipart/form-data;' },
     multipart: multipart,
-    encoding: 'binary'
+    encoding: 'binary',
+    agent: false 
   };
 
   var responceCb = function(err, res, body) {
