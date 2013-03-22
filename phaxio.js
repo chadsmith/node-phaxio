@@ -140,10 +140,11 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     headers: { 'content-type': 'multipart/form-data;' },
     multipart: multipart,
     encoding: 'binary',
-    agent: false 
+    pool.maxSockets: 10
   };
 
   var responceCb = function(err, res, body) {
+    res.on('close', function () {response.emit('end')});
     // phaxio isn't too picky about response types
     if(res && (true || res.headers['content-type'] === 'application/json')){
       try{
