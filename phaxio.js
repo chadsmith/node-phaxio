@@ -134,17 +134,13 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     }
   }
 
-  var pool = {
-    maxSockets: 10
-  }
-
   var reqBody = {
     method: 'POST',
     uri: this.host + this.endpoint + resource,
     headers: { 'content-type': 'multipart/form-data;' },
     multipart: multipart,
-    encoding: 'binary'
-    //pool: pool
+    encoding: 'binary',
+    agent: false
   };
 
   var responceCb = function(err, res, body) {
