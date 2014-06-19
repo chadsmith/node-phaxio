@@ -65,7 +65,7 @@ Phaxio.prototype.accountStatus = function(cb) {
 };
 
 Phaxio.prototype.testReceive = function(opt, cb) {
-  if(!opt.filename){ return cb( new Error('You must provide a filename') ); }
+  if(!opt.filenames){ return cb( new Error('You must provide a filename') ); }
   return this.request('/testReceive', opt, cb);
 };
   
