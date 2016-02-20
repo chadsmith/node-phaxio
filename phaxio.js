@@ -1,5 +1,6 @@
 var mime = require('mime'),
   fs = require('fs'),
+  path = require('path'),
   request = require('request');
 
 var Phaxio = module.exports = function(api_key, api_secret) {
@@ -17,6 +18,15 @@ Phaxio.prototype.sendFax = function(opt, cb) {
     return cb(new Error("You must include filenames or string_data."));
   }
   return this.request('/send', opt, cb);
+};
+
+Phaxio.prototype.cancelFax = function(faxId, cb) {
+  if (!faxId) {
+    return cb(new Error('You must include a fax id.'));
+  }
+  return this.request('/faxCancel', {
+    id: faxId
+  }, cb);
 };
 
 Phaxio.prototype.faxStatus = function(faxId, cb) {
@@ -155,6 +165,8 @@ Phaxio.prototype.request = function(resource, opt, cb) {
       if (Array.isArray(opt[key])) {
         name = name + '[]';
         opt[key].forEach(_iterator);
+      } else if (typeof opt[key] === "boolean" || typeof opt[key] === "number") {
+        addPart(name, opt[key].toString());
       } else {
         addPart(name, opt[key]);
       }
@@ -172,7 +184,7 @@ Phaxio.prototype.request = function(resource, opt, cb) {
     agent: false
   };
 
-  var responceCb = function(err, res, body) {
+  var responseCb = function(err, res, body) {
     // phaxio isn't too picky about response types
     if (res && (true || res.headers['content-type'] === 'application/json')) {
       try {
@@ -186,7 +198,7 @@ Phaxio.prototype.request = function(resource, opt, cb) {
   };
 
   if (!filenames) {
-    return request(reqBody, responceCb);
+    return request(reqBody, responseCb);
   }
 
   filenames = Array.isArray(filenames) ? filenames : [filenames];
@@ -198,14 +210,15 @@ Phaxio.prototype.request = function(resource, opt, cb) {
       if (err) {
         return cb(err);
       }
+
       files--;
       multipart.push({
-        'content-disposition': 'form-data; name="filename[]"; filename="' + filename + '"',
+        'content-disposition': 'form-data; name="filename[]"; filename="' + path.basename(filename) + '"',
         'content-type': (mime.lookup(filename) || 'application/octet-stream'),
         body: data
       });
       if (files === 0) {
-        return request(reqBody, responceCb);
+        return request(reqBody, responseCb);
       }
     });
   });
