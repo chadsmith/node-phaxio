@@ -84,6 +84,15 @@ phaxio.sendFax({
 });
 ```
 
+### phaxio.cancelFax(faxId, callback)
+
+Cancels the fax `faxId`
+```javascript
+phaxio.cancelFax('123456', function(err, res) {
+  console.log(res);
+});
+```
+
 ### phaxio.faxStatus(faxId, callback)
 
 Returns the status of `faxId`
