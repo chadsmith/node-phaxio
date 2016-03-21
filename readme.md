@@ -2,6 +2,8 @@
 
 Send faxes with [Phaxio](http://www.phaxio.com). It's completely asynchronous.
 
+If you perfer a promised based api, take a look at our fork [phaxio-promise](https://github.com/reconbot/node-phaxio-promise)
+
 ## Installation
 
 `npm install phaxio`
