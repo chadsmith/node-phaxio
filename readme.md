@@ -159,14 +159,14 @@ phaxio.accountStatus(function(err, res) {
 
 Simulates receiving a fax containing the PhaxCode in `filename` with optional params `from_number` and `to_number`
 ```javascript
-phaxio.testReceive({filenames: 'PhaxCode.pdf'}, function(err, res) {
+phaxio.testReceive({filename: 'PhaxCode.pdf'}, function(err, res) {
   console.log(res);
 });
 
 phaxio.testReceive({
     from_number: '3165555555',
     to_number: '9135555555',
-    filenames: 'PhaxCode.pdf'
+    filename: 'PhaxCode.pdf'
   }, function(err, res) {
   console.log(res);
 });
