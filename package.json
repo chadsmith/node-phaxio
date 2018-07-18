@@ -28,7 +28,7 @@
   },
   "main": "./phaxio.js",
   "dependencies": {
-    "request": "2.67.x",
+    "request": "2.81.x",
     "mime": "1.2.x"
   }
 }
